@@ -1,17 +1,31 @@
+#include <stdlib.h>
+#include <omp.h>
 #include <stdio.h>
-#include <pthread.h>
+#include <time.h>
+#include <assert.h>
+#define n 50000
 
-void *fun_t(void *arg) {
-    printf("Sanfoundry\n");
-    pthread_exit(NULL);
-}
+/* Exemplo 3 */
+/* Laco perfeitamente paralelizavel */
 
-int main () {
-    pthread_t pt;
-    void *res_t;
+int main() {
 
-    if(pthread_create(&pt, NULL, fun_t, NULL) != 0)
-        perror("pthread_create\n");
-    
-    return 0;
+  long int i,j;
+  double a[n], b[n];
+  double start, end, run;
+
+  for (i=0; i<n; i++) a[i] = (double)(i*2)/(i+6);
+
+  start = omp_get_wtime();
+
+#pragma omp parallel private(j)
+#pragma omp for
+  for (i=0; i<n; i++) 
+    for(j=0; j<n; j++)
+       b[i]= (a[i] - a[i-1])*0.5;
+/* end parallel for */
+
+  end = omp_get_wtime();
+    printf(" took %f seconds.\n", end-start);
+
 }

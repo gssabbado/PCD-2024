@@ -1,27 +1,36 @@
 #include <stdio.h>
-#include <pthread.h>
+#include <omp.h>
+#include <sys/time.h>
+#define N 100000000
 
-#define   MAX_COUNT   10
-#define   MAX_THREADS  3
+int main(int argc, char *argv[]) {
+    struct timeval inicio, final2;
+    double x, resultado_final;
+    int i;
+    int tmili;
 
-void  *ThreadProcess(void *th);  /* thread process prototype */
+    gettimeofday(&inicio, NULL);
+    // Defina o número máximo de threads
+    int max_threads = 8; // substitua com o número desejado
+    omp_set_num_threads(max_threads);
 
-int  main(void) {
-  pthread_t t[MAX_THREADS];  // threads
-  int i;
+    resultado_final = 1.0;
+    x = 1.0 + 1.0 / N;
 
-  for(i=0; i<MAX_THREADS; i++)
-    pthread_create(&t[i], NULL, ThreadProcess, (void *) (i+1));
+    #pragma omp parallel for reduction(*:resultado_final) private(i)
+    for (i = 0; i < N; i++) {
+        resultado_final *= x;
+    }
 
-  pthread_exit(NULL);
-}
+    gettimeofday(&final2, NULL);
 
-void  *ThreadProcess(void *th) {
-  int i, thid;
+    // Cálculo do tempo decorrido em milissegundos
+    tmili = (int) (1000 * (final2.tv_sec - inicio.tv_sec) + (final2.tv_usec - inicio.tv_usec) / 1000);
 
-  thid = (int) th;
-  for (i=1; i<=MAX_COUNT; i++)
-    printf("Line from thread %d,value=%d\n", thid, i);
+    printf("Tempo decorrido: %d milissegundos\n", tmili);
+    printf("Tempo decorrido (tv_sec): %d\n", (int) (final2.tv_sec - inicio.tv_sec));
+    printf("Tempo decorrido (tv_usec): %d\n", (int) (final2.tv_usec - inicio.tv_usec));
+    printf("Resultado = %lf\n", resultado_final);
 
-  pthread_exit(NULL);
+    return 0;
 }
