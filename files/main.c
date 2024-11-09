@@ -4,7 +4,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define N 100000000
+#define N 1000000000
 #define MAX_THREADS 16
 
 float *array;

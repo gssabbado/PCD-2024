@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <omp.h>
 #include <sys/time.h>
-#define N 100000000
+#define N 1000000000
 
 int main(int argc, char *argv[]) {
     struct timeval inicio, final2;
@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 
     gettimeofday(&inicio, NULL);
     // Defina o número máximo de threads
-    int max_threads = 8; // substitua com o número desejado
+    int max_threads = 16; // substitua com o número desejado
     omp_set_num_threads(max_threads);
 
     resultado_final = 1.0;
