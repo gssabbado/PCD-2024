@@ -1,31 +1,48 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
-#include <stdio.h>
 #include <time.h>
-#include <assert.h>
-#define n 50000
+#include <sys/time.h>
 
-/* Exemplo 3 */
-/* Laco perfeitamente paralelizavel */
+#define N 100000000
+#define MAX_THREADS 16
 
-int main() {
+float *array;
 
-  long int i,j;
-  double a[n], b[n];
-  double start, end, run;
+int main(void){
+    float maxglobal;
+    long i;
 
-  for (i=0; i<n; i++) a[i] = (double)(i*2)/(i+6);
+    struct timeval inicio, final2;
+    int tmili;
 
-  start = omp_get_wtime();
+    array = (float*) malloc(N * sizeof(float));
 
-#pragma omp parallel private(j)
-#pragma omp for
-  for (i=0; i<n; i++) 
-    for(j=0; j<n; j++)
-       b[i]= (a[i] - a[i-1])*0.5;
-/* end parallel for */
+    // Initialize the array
+    for(i = 0; i < N; i++) 
+        array[i] = i / 1000.0;
 
-  end = omp_get_wtime();
-    printf(" took %f seconds.\n", end-start);
+    // Start timing
+    gettimeofday(&inicio, NULL);
 
+    // Set the number of threads for OpenMP
+    omp_set_num_threads(MAX_THREADS);
+
+    // Find the maximum value using OpenMP with a reduction
+    maxglobal = array[0];
+    #pragma omp parallel for reduction(max:maxglobal)
+    for(i = 0; i < N; i++) {
+        if(array[i] > maxglobal) maxglobal = array[i];
+    }
+
+    // End timing
+    gettimeofday(&final2, NULL);
+    tmili = (int) (1000 * (final2.tv_sec - inicio.tv_sec) + (final2.tv_usec - inicio.tv_usec) / 1000);
+  
+    printf("tempo decorrido: %d milisegundos\n", tmili);
+    printf("maior valor=%f\n", maxglobal);
+
+    free(array);
+
+    return 0;
 }
