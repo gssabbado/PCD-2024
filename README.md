@@ -7,7 +7,10 @@ Execução do código:
 ./outputs/arquivo
 
 Compilar arquivo com OpenMP:
-gcc -fopenmp ./outputs/arquivo ./files/arquivo.c
+gcc -o ./outputs/arquivo -fopenmp ./files/arquivo.c
 
 Execução do código:
 ./outputs/arquivo
+
+Compilar arquivo com CUDA:
+nvcc ./files/Entrega2-par.cu -o ./outputs/Entrega2-par
